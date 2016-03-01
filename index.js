@@ -5,9 +5,9 @@ const fs = require('fs')
 const rimraf = require('rimraf-promise')
 const mkdirp = require('mkdirp-promise')
 const gm = require('gm')
-const out = 'output'
+let stickerId
 
-function readUrl() {
+function readStickerId() {
   return new Promise((resolve, reject) => {
     promptly.prompt('Enter sticker id: ', async (err, value) => {
       resolve(value)
@@ -16,8 +16,8 @@ function readUrl() {
 }
 
 async function getLinks() {
-  const url = await readUrl()
-  const res = await request(`https://php-necroa.rhcloud.com/stickerline.php?stickerid=${url}`)
+  stickerId = await readStickerId()
+  const res = await request(`https://php-necroa.rhcloud.com/stickerline.php?stickerid=${stickerId}`)
   let links
   try {
     links = JSON.parse(res).link
@@ -40,7 +40,7 @@ function download(links) {
   const tasks = links.map(async (url) => {
     return new Promise(async (resolve) => {
       const parsed = require('url').parse(url)
-      const filename = path.join(out, path.basename(parsed.pathname))
+      const filename = path.join(stickerId, path.basename(parsed.pathname))
       let binary
       do {
         try {
@@ -99,8 +99,8 @@ function process(files) {
 
 async function start() {
   const links = await getLinks()
-  await rimraf(out)
-  await mkdirp(out)
+  await rimraf(stickerId)
+  await mkdirp(stickerId)
   const files = await download(links)
   console.log('Download completed.')
   process(files)
