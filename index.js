@@ -22,6 +22,7 @@ async function getLinks() {
   try {
     res = JSON.parse(res)
     links = res.link
+    links = links.replace('.png', '@2x.png').replace('android', 'iphone');
     directory = res.title
   } catch (e) {
     links = null
